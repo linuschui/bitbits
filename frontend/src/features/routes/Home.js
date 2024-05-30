@@ -8,10 +8,11 @@ import {
 } from '@react-google-maps/api';
 import { useLocationData } from '../../hooks';
 import { useCrimeData } from '../../hooks';
+import { Header } from '../../components';
 
 const containerStyle = {
   width: '100vw',
-  height: '100vh',
+  height: '90vh',
 };
 
 const defaultCenter = {
@@ -115,35 +116,42 @@ export const Home = () => {
   }
 
   return (
-    <div>
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
-        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
-          <>
-            {areCoordinatesLoaded &&
-              crimeCountData.map((item, index) => (
-                <Circle
-                  center={{
-                    lat: Number(item.latitude),
-                    lng: Number(item.longitude),
-                  }}
-                  options={getCircleOptions(item.count)}
-                  key={index}
-                />
-              ))}
-            {areCentroidsLoaded &&
-              centroids.map((item, index) => (
-                <Circle
-                  center={{
-                    lat: Number(item.centroidLatitude),
-                    lng: Number(item.centroidLongitude),
-                  }}
-                  options={getCentroidCircle()}
-                  key={index}
-                />
-              ))}
-          </>
-        </GoogleMap>
-      </LoadScript>
-    </div>
+    <>
+      <Header />
+      <div>
+        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={12}
+          >
+            <>
+              {areCoordinatesLoaded &&
+                crimeCountData.map((item, index) => (
+                  <Circle
+                    center={{
+                      lat: Number(item.latitude),
+                      lng: Number(item.longitude),
+                    }}
+                    options={getCircleOptions(item.count)}
+                    key={index}
+                  />
+                ))}
+              {areCentroidsLoaded &&
+                centroids.map((item, index) => (
+                  <Circle
+                    center={{
+                      lat: Number(item.centroidLatitude),
+                      lng: Number(item.centroidLongitude),
+                    }}
+                    options={getCentroidCircle()}
+                    key={index}
+                  />
+                ))}
+            </>
+          </GoogleMap>
+        </LoadScript>
+      </div>
+    </>
   );
 };

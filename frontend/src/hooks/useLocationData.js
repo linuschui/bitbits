@@ -14,6 +14,5 @@ export const useLocationData = () => {
   return useQuery({
     queryKey: ['locationData'],
     queryFn: fetchLocationData,
-    staleTime: Infinity,
   });
 };

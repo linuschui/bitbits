@@ -14,6 +14,5 @@ export const useCrimeData = () => {
   return useQuery({
     queryKey: ['crimeData'],
     queryFn: fetchCrimeData,
-    staleTime: Infinity,
   });
 };
