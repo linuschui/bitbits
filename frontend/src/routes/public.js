@@ -1,6 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { Home } from '../features/misc/routes/Home';
+import { Home } from '../features/routes/Home';
 const App = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>

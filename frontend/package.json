@@ -12,6 +12,7 @@
     "@types/node": "^20.12.13",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "axios": "^1.7.2",
     "google": "^2.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

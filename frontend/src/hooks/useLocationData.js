@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
-const fetchCrimeData = async () => {
-  const serverUrl = `http://localhost:3500/crime_data_statistics`;
+const fetchLocationData = async () => {
+  const serverUrl = `http://localhost:3500/get_location_data`;
   if (!serverUrl) {
     throw new Error('SERVER_URL is not defined in the environment variables.');
   }
@@ -10,10 +10,10 @@ const fetchCrimeData = async () => {
   return response.data;
 };
 
-export const useCrimeData = () => {
+export const useLocationData = () => {
   return useQuery({
-    queryKey: ['crimeData'],
-    queryFn: fetchCrimeData,
+    queryKey: ['locationData'],
+    queryFn: fetchLocationData,
     staleTime: Infinity,
   });
 };
