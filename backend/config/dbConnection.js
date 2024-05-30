@@ -1,11 +1,11 @@
-const mongoose = require('mongoose')
+const mysql = require('mysql2')
 
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.DATABASE_URI)
-    } catch (err) {
-        console.log(err)
-    }
-}
+const pool = mysql.createPool({
+    connectionLimit: 10,
+    host: 'localhost',
+    user: 'root',
+    password: process.env.MYSQL_PASSWORD,
+    database: 'bitbits'
+})
 
-module.exports = connectDB
+module.exports = pool

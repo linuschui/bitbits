@@ -1,0 +1,182 @@
+[
+    {
+        "location": "Ang Mo Kio North NPC",
+        "latitude": "1.385226812625824",
+        "longitude": "103.84501023957263"
+    },
+    {
+        "location": "Ang Mo Kio South NPC",
+        "latitude": "1.3701296366924867",
+        "longitude": "103.85179714327955"
+    },
+    {
+        "location": "Bedok NPC",
+        "latitude": "1.332715224820463",
+        "longitude": "103.93727649724524"
+    },
+    {
+        "location": "Bishan NPC",
+        "latitude": "1.3579590409211566",
+        "longitude": "103.8478480758228"
+    },
+    {
+        "location": "Bukit Batok NPC",
+        "latitude": "1.3497638779679826",
+        "longitude": "103.75917971151921"
+    },
+    {
+        "location": "Bukit Merah East NPC",
+        "latitude": "1.2787863743282262",
+        "longitude": "103.83968785491781"
+    },
+    {
+        "location": "Bukit Merah West NPC",
+        "latitude": "1.2861725259074641",
+        "longitude": "103.82331108190036"
+    },
+    {
+        "location": "Bukit Panjang NPC",
+        "latitude": "1.3869628895476476",
+        "longitude": "103.77163205677091"
+    },
+    {
+        "location": "Bukit Timah NPC",
+        "latitude": "1.3230473220975911",
+        "longitude": "103.812383668409"
+    },
+    {
+        "location": "Changi NPC",
+        "latitude": "1.3448727750826477",
+        "longitude": "103.95498965862446"
+    },
+    {
+        "location": "Checkpoint",
+        "latitude": "1.4460093875930615",
+        "longitude": "103.76868503475107"
+    },
+    {
+        "location": "Choa Chu Kang NPC",
+        "latitude": "1.3955572530536615",
+        "longitude": "103.74479128375367"
+    },
+    {
+        "location": "Clementi NPC",
+        "latitude": "1.3214029144008743",
+        "longitude": "103.76082421259015"
+    },
+    {
+        "location": "Geylang NPC",
+        "latitude": "1.3111202890912594",
+        "longitude": "103.88590849168482"
+    },
+    {
+        "location": "Hougang NPC",
+        "latitude": "1.3745790680940655",
+        "longitude": "103.88498098190023"
+    },
+    {
+        "location": "Jurong East NPC",
+        "latitude": "1.340305149786521",
+        "longitude": "103.73739353957278"
+    },
+    {
+        "location": "Jurong West NPC",
+        "latitude": "1.349695556812922",
+        "longitude": "103.71431722951003"
+    },
+    {
+        "location": "Kampong Java NPC",
+        "latitude": "1.3122136972046639",
+        "longitude": "103.84654522608142"
+    },
+    {
+        "location": "Marina Bay NPC",
+        "latitude": "1.2750378626628673",
+        "longitude": "103.84924813349537"
+    },
+    {
+        "location": "Marine Parade NPC",
+        "latitude": "1.3066050759043248",
+        "longitude": "103.91458718375385"
+    },
+    {
+        "location": "Nanyang NPC",
+        "latitude": "1.3514679482548009",
+        "longitude": "103.70220422757902"
+    },
+    {
+        "location": "Orchard NPC",
+        "latitude": "1.2992943984855285",
+        "longitude": "103.84002677396943"
+    },
+    {
+        "location": "Pasir Ris NPC",
+        "latitude": "1.3687824687754122",
+        "longitude": "103.95967946840878"
+    },
+    {
+        "location": "Punggol NPC",
+        "latitude": "1.3979439729522087",
+        "longitude": "103.91388049353797"
+    },
+    {
+        "location": "Queenstown NPC",
+        "latitude": "1.2885532562845667",
+        "longitude": "103.8031779567712"
+    },
+    {
+        "location": "Rochor NPC",
+        "latitude": "1.3078954632601092",
+        "longitude": "103.85430899724524"
+    },
+    {
+        "location": "Sembawang NPC",
+        "latitude": "1.4449507561919437",
+        "longitude": "103.81961892608099"
+    },
+    {
+        "location": "Sengkang NPC",
+        "latitude": "1.3931929402213676",
+        "longitude": "103.89393447211572"
+    },
+    {
+        "location": "Serangoon NPC",
+        "latitude": "1.3523377965415968",
+        "longitude": "103.87045081073643"
+    },
+    {
+        "location": "Tampines NPC",
+        "latitude": "1.3463443161355853",
+        "longitude": "103.93863123771929"
+    },
+    {
+        "location": "Toa Payoh NPC",
+        "latitude": "1.3349762393691689",
+        "longitude": "103.85058634513317"
+    },
+    {
+        "location": "Woodlands East NPC",
+        "latitude": "1.438938003987969",
+        "longitude": "103.80246615491728"
+    },
+    {
+        "location": "Woodlands NPC",
+        "latitude": "1.433370808143149",
+        "longitude": "103.77884866840868"
+    }, 
+    {
+        "location": "Woodlands West NPC",
+        "latitude": "1.433370808143149",
+        "longitude": "103.77884866840868"
+    },
+    {
+        "location": "Yishun North NPC",
+        "latitude": "1.4295521300224718",
+        "longitude": "103.84025931258964"
+    }, 
+    {
+        "location": "Yishun South NPC",
+        "latitude": "1.415397994552763",
+        "longitude": "103.83521318649018"
+    }
+]
