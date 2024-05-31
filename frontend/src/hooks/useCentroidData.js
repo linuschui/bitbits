@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
-const fetchLocationData = async () => {
-  const serverUrl = `http://localhost:3500/get_location_coordinates_data`;
+const fetchCentroidData = async () => {
+  const serverUrl = `http://localhost:3500/get_centroids_data`;
   if (!serverUrl) {
     throw new Error('SERVER_URL is not defined in the environment variables.');
   }
@@ -11,10 +11,10 @@ const fetchLocationData = async () => {
   return response.data;
 };
 
-export const useLocationData = () => {
+export const useCentroidData = () => {
   return useQuery({
-    queryKey: ['locationData'],
-    queryFn: fetchLocationData,
+    queryKey: ['centroidData'],
+    queryFn: fetchCentroidData,
     staleTime: 30000,
   });
 };

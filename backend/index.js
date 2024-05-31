@@ -174,20 +174,20 @@ app.get("/get_location_coordinates_data", async (req, res) => {
     connection.query(query, (error, results) => {
       if (error) {
         console.log(
-          `${new Date().toLocaleString()} | GET /get_location_coordinates : ERROR FETCHING DATA FROM MYSQL - ${error}`
+          `${new Date().toLocaleString()} | GET /get_location_coordinates_data : ERROR FETCHING DATA FROM MYSQL - ${error}`
         );
         res.status(500).json({
           error: `Error Fetching Data From MySQL - ${error}`,
         });
       }
       console.log(
-        `${new Date().toLocaleString()} | GET /get_location_coordinates : 200 OK`
+        `${new Date().toLocaleString()} | GET /get_location_coordinates_data : 200 OK`
       );
       res.status(200).json(results);
     });
   } catch (error) {
     console.log(
-      `${new Date().toLocaleString()} | GET /get_location_coordinates : ERROR FETCHING DATA FROM MYSQL - ${error}`
+      `${new Date().toLocaleString()} | GET /get_location_coordinates_data : ERROR FETCHING DATA FROM MYSQL - ${error}`
     );
     res.status(500).json({
       error: `Error Fetching Data From MySQL - ${error}`,
@@ -229,6 +229,7 @@ app.get("/get_centroids_data", async (req, res) => {
             lng: data.centroid[1],
           },
           points: data.cluster.map((point) => ({
+            loc: hm[point[0] + "," + point[1]],
             lat: point[0],
             lng: point[1],
           })),

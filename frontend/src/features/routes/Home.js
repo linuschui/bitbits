@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  GoogleMap,
-  LoadScript,
-  MarkerF,
-  Circle,
-  useLoadScript,
-} from '@react-google-maps/api';
-import { useLocationData } from '../../hooks';
-import { useCrimeData } from '../../hooks';
+import { GoogleMap, MarkerF, Circle } from '@react-google-maps/api';
+import { useCentroidData, useCrimeData } from '../../hooks';
 import { Header } from '../../components';
-import { useQueryClient } from '@tanstack/react-query';
 
 const containerStyle = {
   width: '100vw',
@@ -22,11 +14,10 @@ const defaultCenter = {
 };
 
 export const Home = () => {
-  const queryClient = useQueryClient();
   const [center, setCenter] = useState(defaultCenter);
   const { data: crimeData, isLoading: isCrimeDataLoading } = useCrimeData();
   const { data: centroidData, isLoading: isCentroidDataLoading } =
-    useLocationData();
+    useCentroidData();
   const [centroids, setCentroids] = useState('');
   const [groupings, setGroupings] = useState('');
   const [areCoordinatesLoaded, setCoordinatesLoaded] = useState(false);
@@ -146,6 +137,7 @@ export const Home = () => {
                     lat: Number(item.lat),
                     lng: Number(item.lng),
                   }}
+                  key={index}
                 />
               ))}
           </>

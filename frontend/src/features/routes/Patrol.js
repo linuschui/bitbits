@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   GoogleMap,
-  LoadScript,
   MarkerF,
   Circle,
   useLoadScript,
@@ -9,9 +8,11 @@ import {
   Polyline,
   InfoWindow,
 } from '@react-google-maps/api';
-import { useLocationData } from '../../hooks';
-import { useCrimeData } from '../../hooks';
+import { useCentroidData, useLocationData } from '../../hooks';
 import { Header } from '../../components';
+import './Patrol.css';
+import DropdownMenu from '../../components/Dropdown';
+import { useNavigate } from 'react-router-dom';
 
 const containerStyle = {
   width: '100vw',
@@ -25,21 +26,50 @@ const defaultCenter = {
 
 export const Patrol = () => {
   const [center, setCenter] = useState(defaultCenter);
+  // API DATA
   const { data: centroidData, isLoading: isCentroidDataLoading } =
+    useCentroidData();
+  const { data: locationData, isLoading: isLocationDataLoading } =
     useLocationData();
+  // CENTROIDS
   const [centroids, setCentroids] = useState([]);
   const [groupings, setGroupings] = useState('');
   const [clusters, setClusters] = useState([]);
   const [areCentroidsLoaded, setCentroidsLoaded] = useState(false);
   const [markerArray, setMarkerArray] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [locations, setLocations] = useState([]);
+
+  // QUERY (FILTER)
+  const [query, setQuery] = useState('All');
+  const [indexMap, setIndexMap] = useState(null);
+  const [displayedPath, setDisplayedPath] = useState(null);
+  const [displayedRoute, setDisplayedRoute] = useState(null);
+
+  const handleSelected = (item) => {
+    if (item === 'All') {
+      setQuery(null);
+    } else {
+      setQuery(item);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (query === 'All') {
+      setDisplayedPath(pathArray);
+    } else {
+      navigate('/path', [locationData[query]]);
+    }
+    console.log(displayedPath);
+  }, [query]);
 
   // TSP
   const [pathArray, setPathArray] = useState(null);
 
   useEffect(() => {
     if (!isCentroidDataLoading && centroidData) {
-      console.log(centroidData);
       // SET CENTROIDS
       const centroids = centroidData.map((item) => item.centroid);
       setCentroids(centroids);
@@ -55,7 +85,6 @@ export const Patrol = () => {
       const groupings = centroidData
         .map((item) => item.mapping)
         .flatMap((i) => i.points);
-      console.log(groupings);
       setGroupings(groupings);
       let indexMap = {};
       let pathArray = [];
@@ -65,18 +94,26 @@ export const Patrol = () => {
           lat: item.lat,
           lng: item.lng,
         });
-        indexMap[i] = {
-          lat: item.lat,
-          lng: item.lng,
-        };
+        indexMap[item.loc] = currentPath;
         i++;
         pathArray.push(currentPath);
       });
-      console.log(pathArray);
       setPathArray(pathArray);
+      setDisplayedPath(pathArray);
+      setIndexMap(indexMap);
+      console.log(indexMap);
       setCentroidsLoaded(true);
     }
-  }, [centroidData, isCentroidDataLoading]);
+    if (!isLocationDataLoading && locationData) {
+      const locations = locationData.map((item) => item.location);
+      setLocations(locations);
+    }
+  }, [
+    centroidData,
+    isCentroidDataLoading,
+    locationData,
+    isLocationDataLoading,
+  ]);
 
   function toRadians(degrees) {
     return (degrees * Math.PI) / 180;
@@ -116,7 +153,6 @@ export const Patrol = () => {
       current = nearest;
       unvisited = unvisited.filter((point) => point !== nearest);
     }
-    path.push(start);
     return path;
   }
 
@@ -202,6 +238,7 @@ export const Patrol = () => {
       strokeWeight: 5,
       fillColor: colourMapping[index],
       fillOpacity: 0.35,
+      zIndex: 2,
     };
     return pathOptions;
   }
@@ -215,7 +252,7 @@ export const Patrol = () => {
   return (
     <>
       <Header />
-      <div>
+      <div className="patrol-container">
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
           <>
             {areCentroidsLoaded &&
@@ -261,12 +298,17 @@ export const Patrol = () => {
                   key={index}
                 />
               ))}
-            {pathArray &&
-              pathArray.map((item, index) => (
+            {displayedPath &&
+              displayedPath.map((item, index) => (
                 <Polyline path={item} options={getPathOptions(index % 11)} />
               ))}
           </>
         </GoogleMap>
+        <div className="patrol-utilities-container">
+          {locations && (
+            <DropdownMenu data={locations} handleSelected={handleSelected} />
+          )}
+        </div>
       </div>
     </>
   );
