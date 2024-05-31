@@ -221,16 +221,16 @@ app.get("/get_centroids_data", async (req, res) => {
       ]);
       // MAPPING FUNCTION
       function mapClusterData(data) {
-        const lat = Number(data.centroid[0])
-        const lng = Number(data.centroid[1])
+        const lat = Number(data.centroid[1])
+        const lng = Number(data.centroid[0])
         return {
           centroid: {
-            lat: data.centroid[0],
-            lng: data.centroid[1]
+            lat: data.centroid[1],
+            lng: data.centroid[0]
           },
           points: data.cluster.map(point => ({
-            lat: point[0],
-            lng: point[1]
+            lat: point[1],
+            lng: point[0]
           })),
           markers: generateRandomPoints(lat, lng, 4, 100)
         };
@@ -245,7 +245,7 @@ app.get("/get_centroids_data", async (req, res) => {
         }
       }
       // GENERATE RANDOM MARKERS
-      function generateRandomPoints(lng, lat, radius, numPoints) {
+      function generateRandomPoints(lat, lng, radius, numPoints) {
         const randomPoints = [];
         const degreesToRadians = (deg) => (deg * Math.PI) / 180;
         const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
@@ -304,11 +304,12 @@ app.get("/get_centroids_data", async (req, res) => {
           });
           return;
         }
+        console.log(clusters)
         // MAP DATA USING MAPPING FUNCTION
         const mappedClusters = clusters.map(item => mapClusterData(item))
         // MAP DATA USING MAPPING FUNTION
         const mappedPoints = mappedClusters.map(item => mapAll(item))
-        console.log(mappedPoints)
+        // console.log(mappedPoints)
         console.log(
           `${new Date().toLocaleString()} | GET /get_centroids_data : 200 OK - centroids and groupings calculated`
         );
