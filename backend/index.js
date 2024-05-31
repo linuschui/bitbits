@@ -221,16 +221,16 @@ app.get("/get_centroids_data", async (req, res) => {
       ]);
       // MAPPING FUNCTION
       function mapClusterData(data) {
-        const lat = Number(data.centroid[1])
-        const lng = Number(data.centroid[0])
+        const lat = Number(data.centroid[0])
+        const lng = Number(data.centroid[1])
         return {
           centroid: {
-            lat: data.centroid[1],
-            lng: data.centroid[0]
+            lat: data.centroid[0],
+            lng: data.centroid[1]
           },
           points: data.cluster.map(point => ({
-            lat: point[1],
-            lng: point[0]
+            lat: point[0],
+            lng: point[1]
           })),
           markers: generateRandomPoints(lat, lng, 4, 100)
         };
