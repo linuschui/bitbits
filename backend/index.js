@@ -43,7 +43,7 @@ app.get("/", async (req, res) => {
     message: "200 OK",
   });
 });
-
+// DATABASE INITIALISATION : crime_data
 app.get("/crime_data_csv_to_mysql", async (req, res) => {
   console.log(`${new Date().toLocaleString()} | GET /crime_data_csv_to_mysql`);
   try {
@@ -89,7 +89,7 @@ app.get("/crime_data_csv_to_mysql", async (req, res) => {
     });
   }
 });
-
+// DATABASE INITIALISATION : location_coordinate
 app.get("/location_coordinates_json_to_mysql", async (req, res) => {
   console.log(
     `${new Date().toLocaleString()} | GET /location_coordinates_json_to_mysql`
@@ -138,7 +138,7 @@ app.get("/location_coordinates_json_to_mysql", async (req, res) => {
     }
   });
 });
-
+// FETCH DATA FROM crime_data
 app.get("/get_crime_data", async (req, res) => {
   console.log(`${new Date().toLocaleString()} | GET /get_crime_data`);
   const query = `SELECT * FROM crime_data`;
@@ -166,16 +166,43 @@ app.get("/get_crime_data", async (req, res) => {
     });
   }
 });
-
-// K-means endpoint
-app.get("/get_location_data", async (req, res) => {
-  console.log(`${new Date().toLocaleString()} | GET /get_location_data`);
+// FETCH DATA FROM location_coordinates
+app.get("/get_location_coordinates_data", async (req, res) => {
+  console.log(`${new Date().toLocaleString()} | GET /get_location_coordinates`);
+  const query = `SELECT * FROM location_coordinates`;
+  try {
+    connection.query(query, (error, results) => {
+      if (error) {
+        console.log(
+          `${new Date().toLocaleString()} | GET /get_location_coordinates : ERROR FETCHING DATA FROM MYSQL - ${error}`
+        );
+        res.status(500).json({
+          error: `Error Fetching Data From MySQL - ${error}`,
+        });
+      }
+      console.log(
+        `${new Date().toLocaleString()} | GET /get_location_coordinates : 200 OK`
+      );
+      res.status(200).json(results);
+    });
+  } catch (error) {
+    console.log(
+      `${new Date().toLocaleString()} | GET /get_location_coordinates : ERROR FETCHING DATA FROM MYSQL - ${error}`
+    );
+    res.status(500).json({
+      error: `Error Fetching Data From MySQL - ${error}`,
+    });
+  }
+});
+// FETCH CENTROIDS using location_coordinates
+app.get("/get_centroids_data", async (req, res) => {
+  console.log(`${new Date().toLocaleString()} | GET /get_centroids_data`);
   const query = `SELECT DISTINCT * FROM location_coordinates`;
   try {
     connection.query(query, (error, results) => {
       if (error) {
         console.log(
-          `${new Date().toLocaleString()} | GET /get_location_data : ERROR FETCHING DATA FROM MYSQL - ${error}`
+          `${new Date().toLocaleString()} | GET /get_centroids_data : ERROR FETCHING DATA FROM MYSQL - ${error}`
         );
         res.status(500).json({
           error: `Error Fetching Data From MySQL - ${error}`,
@@ -187,53 +214,110 @@ app.get("/get_location_data", async (req, res) => {
       for (const result of results) {
         hm[result.latitude + "," + result.longitude] = result.location;
       }
-
-      // Prepare data for clustering
+      // PREPARE DATA FOR CLUSTERING
       const vectors = results.map((record) => [
         record.latitude,
         record.longitude,
       ]);
-
-      // Perform K-means clustering
+      // MAPPING FUNCTION
+      function mapClusterData(data) {
+        const lat = Number(data.centroid[0])
+        const lng = Number(data.centroid[1])
+        return {
+          centroid: {
+            lat: data.centroid[0],
+            lng: data.centroid[1]
+          },
+          points: data.cluster.map(point => ({
+            lat: point[0],
+            lng: point[1]
+          })),
+          markers: generateRandomPoints(lat, lng, 4, 100)
+        };
+      }
+      // MAPPING FUNCTION 
+      function mapAll(data) {
+        return {
+          centroid: data.centroid,
+          points: data.points,
+          markers: data.markers,
+          mapping: allocateMarkersToPoints(data.points, data.markers)
+        }
+      }
+      // GENERATE RANDOM MARKERS
+      function generateRandomPoints(lng, lat, radius, numPoints) {
+        const randomPoints = [];
+        const degreesToRadians = (deg) => (deg * Math.PI) / 180;
+        const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
+        const earthRadius = 6371;
+        for (let i = 0; i < numPoints; i++) {
+          const u = Math.random();
+          const v = Math.random();
+          const w = (radius / earthRadius) * Math.sqrt(u);
+          const t = 2 * Math.PI * v;
+          const x = w * Math.cos(t);
+          const y = w * Math.sin(t);
+          const new_x = x / Math.cos(degreesToRadians(lat));
+          const newLat = lat + radiansToDegrees(y);
+          const newLng = lng + radiansToDegrees(new_x);
+          randomPoints.push({ lat: newLat, lng: newLng });
+        }
+        return randomPoints;
+      }
+      // ALLOCATE RANDOM MARKERS TO POINTS
+      function allocateMarkersToPoints(points, markers) {
+        const numPoints = points.length
+        const numMarkers = markers.length
+        const baseMarkersPerPoint = Math.floor(numMarkers/numPoints)
+        const remainder = numMarkers & numPoints
+        const allocatedMarkers = points.map(() => [])
+        // DISTRIBUTE POINTS
+        let markerIndex = 0
+        for (let i = 0; i < numPoints; i++) {
+          // EACH POINT GET BASE AMOUNT OF MARKERS
+          for (let j = 0; j < baseMarkersPerPoint; j++) {
+            allocatedMarkers[i].push(markers[markerIndex])
+            markerIndex++
+          }
+          // DISTRIBUTE REMAINDER POINTS
+          if (i < remainder) {
+            allocatedMarkers[i].push(markers[markerIndex])
+            markerIndex++
+          }
+        }
+        // CREATE RESULT INSTANCE
+        return {
+          points: points.map((point, index) => ({
+            ...point,
+            markers: allocatedMarkers[index]
+          }))
+        }
+      }
+      // PERFORM KMEANS CLUSTERING (5 CENTROIDS)
       kmeans.clusterize(vectors, { k: 5 }, (err, clusters) => {
         if (err) {
           console.log(
-            `${new Date().toLocaleString()} | GET /get_location_data : ERROR IN K-MEANS CLUSTERING - ${err}`
+            `${new Date().toLocaleString()} | GET /get_centroids_data : ERROR IN K-MEANS CLUSTERING - ${err}`
           );
           res.status(500).json({
             error: `Error in K-means Clustering - ${err}`,
           });
           return;
         }
-
-        const centroids = clusters.map((cluster) => ({
-          centroidLatitude: cluster.centroid[0],
-          centroidLongitude: cluster.centroid[1],
-        }));
-
-        const groupings = {};
-        for (const group of clusters) {
-          groupings[group.centroid] = group.cluster;
-        }
-
-        const mappings = {};
-
-        for (const key in groupings) {
-          mappings[key] = groupings[key].map((coords) => {
-            const latLngKey = coords[0] + "," + coords[1];
-            return { loc: hm[latLngKey], coords: latLngKey };
-          });
-        }
-
+        // MAP DATA USING MAPPING FUNCTION
+        const mappedClusters = clusters.map(item => mapClusterData(item))
+        // MAP DATA USING MAPPING FUNTION
+        const mappedPoints = mappedClusters.map(item => mapAll(item))
+        console.log(mappedPoints)
         console.log(
-          `${new Date().toLocaleString()} | GET /get_location_data : 200 OK - centroids and groupings calculated`
+          `${new Date().toLocaleString()} | GET /get_centroids_data : 200 OK - centroids and groupings calculated`
         );
-        res.status(200).json({ mappings: mappings, centroids: centroids });
+        res.status(200).json(mappedPoints)
       });
     });
   } catch (error) {
     console.log(
-      `${new Date().toLocaleString()} | GET /get_location_data : ERROR FETCHING DATA FROM MYSQL - ${error}`
+      `${new Date().toLocaleString()} | GET /get_centroids_data : ERROR FETCHING DATA FROM MYSQL - ${error}`
     );
     res.status(500).json({
       error: `Error Fetching Data From MySQL - ${error}`,
