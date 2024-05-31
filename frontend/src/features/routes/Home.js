@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react';
 import {
   GoogleMap,
   LoadScript,
-  Marker,
+  MarkerF,
   Circle,
   useLoadScript,
 } from '@react-google-maps/api';
 import { useLocationData } from '../../hooks';
 import { useCrimeData } from '../../hooks';
 import { Header } from '../../components';
+import { useQueryClient } from '@tanstack/react-query';
 
 const containerStyle = {
   width: '100vw',
-  height: '90vh',
+  height: '80vh',
 };
 
 const defaultCenter = {
@@ -21,6 +22,7 @@ const defaultCenter = {
 };
 
 export const Home = () => {
+  const queryClient = useQueryClient();
   const [center, setCenter] = useState(defaultCenter);
   const { data: crimeData, isLoading: isCrimeDataLoading } = useCrimeData();
   const { data: centroidData, isLoading: isCentroidDataLoading } =
@@ -39,16 +41,9 @@ export const Home = () => {
       setCoordinatesLoaded(true);
     }
     if (!isCentroidDataLoading && centroidData) {
-      setCentroids(centroidData.centroids);
-      const newGroupings = {};
-
-      centroidData.centroids.forEach((centroid) => {
-        const key = `${centroid.centroidLatitude},${centroid.centroidLongitude}`;
-        newGroupings[key] = centroidData.mappings[key] || [];
-      });
-
-      setGroupings(newGroupings);
-      console.log(newGroupings);
+      const centroids = centroidData.map((item) => item.centroid);
+      console.log(centroids);
+      setCentroids(centroids);
       setCentroidsLoaded(true);
     }
   }, [crimeData, isCrimeDataLoading, centroidData, isCentroidDataLoading]);
@@ -119,38 +114,42 @@ export const Home = () => {
     <>
       <Header />
       <div>
-        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={12}
-          >
-            <>
-              {areCoordinatesLoaded &&
-                crimeCountData.map((item, index) => (
-                  <Circle
-                    center={{
-                      lat: Number(item.latitude),
-                      lng: Number(item.longitude),
-                    }}
-                    options={getCircleOptions(item.count)}
-                    key={index}
-                  />
-                ))}
-              {areCentroidsLoaded &&
-                centroids.map((item, index) => (
-                  <Circle
-                    center={{
-                      lat: Number(item.centroidLatitude),
-                      lng: Number(item.centroidLongitude),
-                    }}
-                    options={getCentroidCircle()}
-                    key={index}
-                  />
-                ))}
-            </>
-          </GoogleMap>
-        </LoadScript>
+        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
+          <>
+            {areCoordinatesLoaded &&
+              crimeCountData.map((item, index) => (
+                <Circle
+                  center={{
+                    lat: Number(item.latitude),
+                    lng: Number(item.longitude),
+                  }}
+                  options={getCircleOptions(item.count)}
+                  key={index}
+                />
+              ))}
+            {/* {areCentroidsLoaded &&
+              centroids.map((item, index) => (
+                <Circle
+                  center={{
+                    lat: Number(item.centroidLatitude),
+                    lng: Number(item.centroidLongitude),
+                  }}
+                  options={getCentroidCircle()}
+                  key={index}
+                />
+              ))} */}
+
+            {areCentroidsLoaded &&
+              centroids.map((item, index) => (
+                <MarkerF
+                  position={{
+                    lat: Number(item.lat),
+                    lng: Number(item.lng),
+                  }}
+                />
+              ))}
+          </>
+        </GoogleMap>
       </div>
     </>
   );

@@ -7,6 +7,7 @@ const fetchLocationData = async () => {
     throw new Error('SERVER_URL is not defined in the environment variables.');
   }
   const response = await axios.get(serverUrl);
+  console.log(response.data);
   return response.data;
 };
 
@@ -14,5 +15,6 @@ export const useLocationData = () => {
   return useQuery({
     queryKey: ['locationData'],
     queryFn: fetchLocationData,
+    staleTime: 30000,
   });
 };

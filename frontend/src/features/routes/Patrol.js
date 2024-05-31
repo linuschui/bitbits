@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   GoogleMap,
   LoadScript,
-  Marker,
+  MarkerF,
   Circle,
   useLoadScript,
+  DirectionsRenderer,
+  Polyline,
+  InfoWindow,
 } from '@react-google-maps/api';
 import { useLocationData } from '../../hooks';
 import { useCrimeData } from '../../hooks';
@@ -12,7 +15,7 @@ import { Header } from '../../components';
 
 const containerStyle = {
   width: '100vw',
-  height: '90vh',
+  height: '80vh',
 };
 
 const defaultCenter = {
@@ -22,48 +25,100 @@ const defaultCenter = {
 
 export const Patrol = () => {
   const [center, setCenter] = useState(defaultCenter);
-  const { data: crimeData, isLoading: isCrimeDataLoading } = useCrimeData();
   const { data: centroidData, isLoading: isCentroidDataLoading } =
     useLocationData();
-  const [centroids, setCentroids] = useState('');
+  const [centroids, setCentroids] = useState([]);
   const [groupings, setGroupings] = useState('');
+  const [clusters, setClusters] = useState([]);
   const [areCentroidsLoaded, setCentroidsLoaded] = useState(false);
   const [markerArray, setMarkerArray] = useState([]);
+  const [selectedMarker, setSelectedMarker] = useState(null);
+
+  // TSP
+  const [pathArray, setPathArray] = useState(null);
 
   useEffect(() => {
     if (!isCentroidDataLoading && centroidData) {
-      setCentroids(centroidData.centroids);
-      const newGroupings = {};
-
-      centroidData.centroids.forEach((centroid) => {
-        const key = `${centroid.centroidLatitude},${centroid.centroidLongitude}`;
-        newGroupings[key] = centroidData.mappings[key] || [];
+      console.log(centroidData);
+      // SET CENTROIDS
+      const centroids = centroidData.map((item) => item.centroid);
+      setCentroids(centroids);
+      // SET MARKERS
+      const markers = centroidData
+        .map((item) => item.markers)
+        .flatMap((i) => i);
+      setMarkerArray(markers);
+      // SET CLUSTERS
+      const clusters = centroidData.map((item) => item.points);
+      setClusters(clusters);
+      // SET GROUPINGS
+      const groupings = centroidData
+        .map((item) => item.mapping)
+        .flatMap((i) => i.points);
+      console.log(groupings);
+      setGroupings(groupings);
+      let indexMap = {};
+      let pathArray = [];
+      let i = 0;
+      groupings.map((item) => {
+        const currentPath = nearestNeighborTSP(item.markers, {
+          lat: item.lat,
+          lng: item.lng,
+        });
+        indexMap[i] = {
+          lat: item.lat,
+          lng: item.lng,
+        };
+        i++;
+        pathArray.push(currentPath);
       });
-
-      setGroupings(newGroupings);
-      let newMarkers = [];
-      for (const [key, value] of Object.entries(newGroupings)) {
-        const markers = generateRandomPoints(
-          Number(key.split(',')[1]),
-          Number(key.split(',')[0]),
-          4,
-          100,
-        );
-        newMarkers = [...newMarkers, ...markers];
-      }
-      setMarkerArray(newMarkers);
-      console.log(newGroupings);
-      let assignments = [];
-      let j = 0;
-      Object.values(groupings).forEach((item) => {
-        const currAssignment = assignMarkersToOffices(j, item, newMarkers);
-        assignments.push(currAssignment);
-        j++;
-      });
-      console.log(assignments);
+      console.log(pathArray);
+      setPathArray(pathArray);
       setCentroidsLoaded(true);
     }
-  }, [crimeData, isCrimeDataLoading, centroidData, isCentroidDataLoading]);
+  }, [centroidData, isCentroidDataLoading]);
+
+  function toRadians(degrees) {
+    return (degrees * Math.PI) / 180;
+  }
+
+  function calculateDistance(point1, point2) {
+    const earthRadiusKm = 6371;
+    const dLat = toRadians(point2.lat - point1.lat);
+    const dLon = toRadians(point2.lng - point1.lng);
+
+    const lat1 = toRadians(point1.lat);
+    const lat2 = toRadians(point2.lat);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
+
+  function nearestNeighborTSP(points, start) {
+    let unvisited = [...points];
+    let path = [start];
+    let current = start;
+
+    while (unvisited.length > 0) {
+      let nearest = unvisited.reduce((nearest, point) => {
+        if (!nearest) {
+          return point;
+        }
+        let nearestDistance = calculateDistance(current, nearest);
+        let pointDistance = calculateDistance(current, point);
+        return pointDistance < nearestDistance ? point : nearest;
+      }, null);
+
+      path.push(nearest);
+      current = nearest;
+      unvisited = unvisited.filter((point) => point !== nearest);
+    }
+    path.push(start);
+    return path;
+  }
 
   function getFillColor(id) {
     const hm = {};
@@ -126,97 +181,92 @@ export const Patrol = () => {
     return circleOptions;
   }
 
-  function generateRandomPoints(lng, lat, radius, numPoints) {
-    const randomPoints = [];
-    const degreesToRadians = (deg) => (deg * Math.PI) / 180;
-    const radiansToDegrees = (rad) => (rad * 180) / Math.PI;
-    const earthRadius = 6371; // Earth's radius in kilometers
+  const colourMapping = {
+    0: 'grey',
+    1: 'red',
+    2: 'orange',
+    3: 'yellow',
+    4: 'green',
+    5: 'cyan',
+    6: 'darkblue',
+    7: 'purple',
+    8: 'pink',
+    9: 'turquoise',
+    10: 'brown',
+  };
 
-    for (let i = 0; i < numPoints; i++) {
-      const u = Math.random();
-      const v = Math.random();
-      const w = (radius / earthRadius) * Math.sqrt(u);
-      const t = 2 * Math.PI * v;
-      const x = w * Math.cos(t);
-      const y = w * Math.sin(t);
-      const new_x = x / Math.cos(degreesToRadians(lat));
-
-      const newLat = lat + radiansToDegrees(y);
-      const newLng = lng + radiansToDegrees(new_x);
-
-      randomPoints.push({ lat: newLat, lng: newLng });
-    }
-
-    return randomPoints;
+  function getPathOptions(index) {
+    const pathOptions = {
+      strokeColor: colourMapping[index],
+      strokeOpacity: 0.8,
+      strokeWeight: 5,
+      fillColor: colourMapping[index],
+      fillOpacity: 0.35,
+    };
+    return pathOptions;
   }
 
-  function assignMarkersToOffices(j, offices, markerArray) {
-    const assignments = {};
-    console.log(markerArray);
-    console.log(offices);
-    offices.forEach((office, index) => {
-      if (!assignments[office.loc]) {
-        assignments[office.loc] = [];
-      }
-      for (let i = 0; i < markerArray[j].length; i += offices.length) {
-        assignments[office.loc].push(markerArray[j][i]);
-      }
-    });
-    console.log(assignments);
-    return assignments;
+  function calculateEuclideanDistance(point1, point2) {
+    const dx = point1.lat - point2.lat;
+    const dy = point1.lng - point2.lng;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 
   return (
     <>
       <Header />
       <div>
-        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={12}
-          >
-            <>
-              {areCentroidsLoaded &&
-                centroids.map((item, index) => (
+        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
+          <>
+            {areCentroidsLoaded &&
+              clusters.map((cluster, index) =>
+                cluster.map((item) => (
                   <Circle
                     center={{
-                      lat: Number(item.centroidLatitude),
-                      lng: Number(item.centroidLongitude),
+                      lat: Number(item.lat),
+                      lng: Number(item.lng),
                     }}
-                    options={getCentroidCircle()}
+                    options={getGroupingCircle(index)}
+                    key={`${Math.random() * Math.random()}`}
+                  />
+                )),
+              )}
+            {markerArray.length > 0 &&
+              markerArray.map((item, index) => {
+                return (
+                  <Circle
+                    center={{
+                      lat: Number(item.lat),
+                      lng: Number(item.lng),
+                    }}
+                    onClick={() => {
+                      setSelectedMarker(item);
+                    }}
+                    options={getMarkerCircle()}
                     key={index}
                   />
-                ))}
-              {areCentroidsLoaded &&
-                Object.entries(groupings).map(([key, group], index) =>
-                  group.map((item, id) => (
-                    <Circle
-                      center={{
-                        lat: Number(item.coords.split(',')[0]),
-                        lng: Number(item.coords.split(',')[1]),
-                      }}
-                      options={getGroupingCircle(index)}
-                      key={`${key}-${id}`}
-                    />
-                  )),
-                )}
-              {markerArray.length > 0 &&
-                markerArray
-                  .flatMap((i) => i)
-                  .map((item, index) => (
-                    <Circle
-                      center={{
-                        lat: Number(item.lat),
-                        lng: Number(item.lng),
-                      }}
-                      options={getMarkerCircle()}
-                      key={index}
-                    />
-                  ))}
-            </>
-          </GoogleMap>
-        </LoadScript>
+                );
+              })}
+
+            {areCentroidsLoaded &&
+              centroids.map((item, index) => (
+                <MarkerF
+                  position={{
+                    lat: Number(item.lat),
+                    lng: Number(item.lng),
+                  }}
+                  onClick={() => {
+                    setSelectedMarker(item);
+                  }}
+                  key={index}
+                />
+              ))}
+            {pathArray &&
+              pathArray.map((item, index) => (
+                <Polyline path={item} options={getPathOptions(index % 11)} />
+              ))}
+          </>
+        </GoogleMap>
       </div>
     </>
   );

@@ -221,28 +221,28 @@ app.get("/get_centroids_data", async (req, res) => {
       ]);
       // MAPPING FUNCTION
       function mapClusterData(data) {
-        const lat = Number(data.centroid[0])
-        const lng = Number(data.centroid[1])
+        const lat = Number(data.centroid[0]);
+        const lng = Number(data.centroid[1]);
         return {
           centroid: {
             lat: data.centroid[0],
-            lng: data.centroid[1]
+            lng: data.centroid[1],
           },
-          points: data.cluster.map(point => ({
+          points: data.cluster.map((point) => ({
             lat: point[0],
-            lng: point[1]
+            lng: point[1],
           })),
-          markers: generateRandomPoints(lat, lng, 4, 100)
+          markers: generateRandomPoints(lat, lng, 3, 300),
         };
       }
-      // MAPPING FUNCTION 
+      // MAPPING FUNCTION
       function mapAll(data) {
         return {
           centroid: data.centroid,
           points: data.points,
           markers: data.markers,
-          mapping: allocateMarkersToPoints(data.points, data.markers)
-        }
+          mapping: allocateMarkersToPoints(data.points, data.markers),
+        };
       }
       // GENERATE RANDOM MARKERS
       function generateRandomPoints(lat, lng, radius, numPoints) {
@@ -266,32 +266,32 @@ app.get("/get_centroids_data", async (req, res) => {
       }
       // ALLOCATE RANDOM MARKERS TO POINTS
       function allocateMarkersToPoints(points, markers) {
-        const numPoints = points.length
-        const numMarkers = markers.length
-        const baseMarkersPerPoint = Math.floor(numMarkers/numPoints)
-        const remainder = numMarkers & numPoints
-        const allocatedMarkers = points.map(() => [])
+        const numPoints = points.length;
+        const numMarkers = markers.length;
+        const baseMarkersPerPoint = Math.floor(numMarkers / numPoints);
+        const remainder = numMarkers % numPoints;
+        const allocatedMarkers = points.map(() => []);
         // DISTRIBUTE POINTS
-        let markerIndex = 0
+        let markerIndex = 0;
         for (let i = 0; i < numPoints; i++) {
           // EACH POINT GET BASE AMOUNT OF MARKERS
           for (let j = 0; j < baseMarkersPerPoint; j++) {
-            allocatedMarkers[i].push(markers[markerIndex])
-            markerIndex++
+            allocatedMarkers[i].push(markers[markerIndex]);
+            markerIndex++;
           }
           // DISTRIBUTE REMAINDER POINTS
           if (i < remainder) {
-            allocatedMarkers[i].push(markers[markerIndex])
-            markerIndex++
+            allocatedMarkers[i].push(markers[markerIndex]);
+            markerIndex++;
           }
         }
         // CREATE RESULT INSTANCE
         return {
           points: points.map((point, index) => ({
             ...point,
-            markers: allocatedMarkers[index]
-          }))
-        }
+            markers: allocatedMarkers[index],
+          })),
+        };
       }
       // PERFORM KMEANS CLUSTERING (5 CENTROIDS)
       kmeans.clusterize(vectors, { k: 5 }, (err, clusters) => {
@@ -304,16 +304,16 @@ app.get("/get_centroids_data", async (req, res) => {
           });
           return;
         }
-        console.log(clusters)
+        console.log(clusters);
         // MAP DATA USING MAPPING FUNCTION
-        const mappedClusters = clusters.map(item => mapClusterData(item))
+        const mappedClusters = clusters.map((item) => mapClusterData(item));
         // MAP DATA USING MAPPING FUNTION
-        const mappedPoints = mappedClusters.map(item => mapAll(item))
+        const mappedPoints = mappedClusters.map((item) => mapAll(item));
         // console.log(mappedPoints)
         console.log(
           `${new Date().toLocaleString()} | GET /get_centroids_data : 200 OK - centroids and groupings calculated`
         );
-        res.status(200).json(mappedPoints)
+        res.status(200).json(mappedPoints);
       });
     });
   } catch (error) {
