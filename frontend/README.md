@@ -1,70 +1,80 @@
-# Getting Started with Create React App
+# ReportIT
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+Our application is designed to enhance domestic security by identifying crime hotspots in Singapore. Utilizing government data from the past decade, this web app offers a powerful tool for both police officers and the public to understand and contribute to crime prevention efforts.
 
-In the project directory, you can run:
+## Problem Statement
 
-### `npm start`
+### Theme: Safeguarding Public Security
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+#### Subtheme: Strengthening Domestic Security
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+In response to the need for improved domestic security measures, our app aims to prevent crime by visualizing crime data and enhancing community involvement in crime reporting. By leveraging historical crime data and real-time user submissions, we provide a comprehensive overview of crime trends and hotspots across Singapore.
 
-### `npm test`
+## Features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Police Officers
 
-### `npm run build`
+- **Patrol Routing:** View and follow designated patrolling paths by selecting specific Neighbourhood Police Centers (NPCs).
+- **Crime Hotspot Visualization:** Gain insights into crime-prone areas for targeted patrolling and resource allocation.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Members of the Public
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Crime Reporting:** Contribute to safety by reporting crimes through our website. These reports help update and maintain the accuracy of the crime database in real-time.
+- **Interactive Map:** View crime locations reported by other users, represented as pins on the map, highlighting higher crime risk areas.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### General Features
 
-### `npm run eject`
+- **NPC Crime Statistics:** Display the average number of crimes handled per year for each NPC to provide statistical insights into crime rates across different neighborhoods.
+- **Homepage Overview:** Quick access to crime stats, user-reported crimes, and NPC-specific information through an intuitive interface.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## How We Built Our Project
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Tech Stack
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Frontend:** React
+- **Backend:** Express, Node.js
+- **Database:** MySQL
+- **APIs:** Google API for map functionalities, data.gov.sg for accessing government crime data.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Getting Started
 
-## Learn More
+### Prerequisites
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Node.js
+- MySQL
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Installation
 
-### Code Splitting
+1. **Clone the repository:**
+   git clone [https://github.com/linuschui/bitbits.git](https://github.com/linuschui/bitbits.git)
+2. **Install dependencies:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```
+cd frontend
+npm install
+cd backend
+npm install
+```
 
-### Analyzing the Bundle Size
+3.  **Ensure that you have the .env files at root directory of frontend and backend:**
+    Frontend .env file:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+REACT_APP_GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"
+```
 
-### Making a Progressive Web App
+Backend .env file:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```
+MYSQL_PASSWORD="YOUR_MYSQL_PASSWORD"
+```
 
-### Advanced Configuration
+4. **On both frontend and backend, run:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+npm run start
+```
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+5.  **Access the app:** Open your browser and navigate to `http://localhost:3000` to view the app.
