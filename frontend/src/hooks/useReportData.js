@@ -11,7 +11,7 @@ const fetchReportData = async () => {
   return response.data;
 };
 
-export const useLocationData = () => {
+export const useReportData = () => {
   return useQuery({
     queryKey: ['reportData'],
     queryFn: fetchReportData,
