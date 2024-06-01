@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, MarkerF, Circle } from '@react-google-maps/api';
-import { useCentroidData, useCrimeData } from '../../hooks';
+import { useCentroidData, useCrimeData, useReportData } from '../../hooks';
 import { Header } from '../../components';
 
 const containerStyle = {
@@ -18,11 +18,14 @@ export const Home = () => {
   const { data: crimeData, isLoading: isCrimeDataLoading } = useCrimeData();
   const { data: centroidData, isLoading: isCentroidDataLoading } =
     useCentroidData();
+  const { data: reportData, isLoading: isReportDataLoading } =
+    useReportData();
   const [centroids, setCentroids] = useState('');
   const [groupings, setGroupings] = useState('');
+  const [reportCoordinates, setReportCoordinates] = useState('')
   const [areCoordinatesLoaded, setCoordinatesLoaded] = useState(false);
   const [areCentroidsLoaded, setCentroidsLoaded] = useState(false);
-
+  const [areReportsLoaded, setReportsLoaded] = useState(false);
   const [crimeCountData, setCrimeCountData] = useState([]);
 
   useEffect(() => {
@@ -37,7 +40,12 @@ export const Home = () => {
       setCentroids(centroids);
       setCentroidsLoaded(true);
     }
-  }, [crimeData, isCrimeDataLoading, centroidData, isCentroidDataLoading]);
+    if (!isReportDataLoading && reportData) {
+      console.log(reportData);
+      setReportCoordinates(reportData);
+      setReportsLoaded(true);
+    }
+  }, [crimeData, isCrimeDataLoading, centroidData, isCentroidDataLoading, reportData, isReportDataLoading]);
 
   // Get current location
   // useEffect(() => {
@@ -129,7 +137,6 @@ export const Home = () => {
                   key={index}
                 />
               ))} */}
-
             {areCentroidsLoaded &&
               centroids.map((item, index) => (
                 <MarkerF
@@ -139,6 +146,16 @@ export const Home = () => {
                   }}
                   key={index}
                 />
+              ))}
+              {areReportsLoaded && 
+                reportCoordinates.map((item, index) => (
+                  <MarkerF
+                    position={{
+                      lat: Number(item.latitude),
+                      lng: Number(item.longitude),
+                    }}
+                    key={index}
+                  />
               ))}
           </>
         </GoogleMap>

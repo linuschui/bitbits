@@ -229,10 +229,9 @@ app.get("/get_centroids_data", async (req, res) => {
             lng: data.centroid[1],
           },
           points: data.cluster.map((point) => ({
-            loc: hm[point[0] + "," + point[1]],
             lat: point[0],
             lng: point[1],
-          })),
+          })),  
           markers: generateRandomPoints(lat, lng, 3, 300),
         };
       }
@@ -353,6 +352,77 @@ app.get("/crime_data_statistics", (req, res) => {
   } catch (error) {
     console.log(
       `${new Date().toLocaleString()} | GET /crime_data_statistics : ERROR FETCHING DATA FROM MYSQL - ${error}`
+    );
+    res.status(500).json({
+      error: `Error Fetching Data From MySQL - ${error}`,
+    });
+  }
+});
+
+function generateRandomCoordinates(numPoints) {
+  const latMin = 1.2400;
+  const latMax = 1.4700;
+  const lonMin = 103.6200;
+  const lonMax = 104.0400;
+
+  const coordinates = [];
+  for (let i = 0; i < numPoints; i++) {
+      const lat = Math.random() * (latMax - latMin) + latMin;
+      const lon = Math.random() * (lonMax - lonMin) + lonMin;
+      coordinates.push({ lat, lon });
+  }
+
+  return coordinates;
+}
+// PUBLIC REPORTS
+app.get("/generate_report_markers", async (req, res) => {
+  console.log(`${new Date().toLocaleString()} | GET /generate_report_markers`);
+  // 100 RANDOM POINTS
+  const randomCoordinates = generateRandomCoordinates(100);
+
+  const query = `INSERT INTO report_location (latitude, longitude) VALUES (?, ?)`;
+  randomCoordinates.forEach(coord => {
+    connection.query(query, [coord.lat, coord.lon], (error, results) => {
+      if (error) {
+        console.log(
+          `${new Date().toLocaleString()} | GET /generate_report_markers : ERROR FETCHING DATA FROM MYSQL - ${error}`
+        );
+        res.status(500).json({
+          error: `Error Fetching Data From MySQL - ${error}`,
+        });
+      }
+    })
+  })
+  console.log(
+    `${new Date().toLocaleString()} | GET /generate_report_markers : 200 OK`
+  );
+  res.status(200)
+})
+// FETCH DATA FROM report_location
+app.get("/get_report_location", async (req, res) => {
+  console.log(`${new Date().toLocaleString()} | GET /get_report_location`);
+  const query = `SELECT * FROM report_location`;
+  try {
+    connection.query(query, (error, results) => {
+      if (error) {
+        console.log(
+          `${new Date().toLocaleString()} | GET /get_report_location : ERROR FETCHING DATA FROM MYSQL - ${error}`
+        );
+        res.status(500).json({
+          error: `Error Fetching Data From MySQL - ${error}`,
+        });
+      }
+      console.log(
+        `${new Date().toLocaleString()} | GET /get_report_location : 200 OK`
+      );
+      res.status(200).json(results.map(item => ({
+        latitude: item.latitude,
+        longitude: item.longitude
+      })));
+    });
+  } catch (error) {
+    console.log(
+      `${new Date().toLocaleString()} | GET /get_report_location : ERROR FETCHING DATA FROM MYSQL - ${error}`
     );
     res.status(500).json({
       error: `Error Fetching Data From MySQL - ${error}`,
